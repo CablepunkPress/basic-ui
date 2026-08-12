@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "basic-ui"
+version = "0.1.0"
+description = "Reference chat UI for Basic Bot agents"
+requires-python = ">=3.14"
+dependencies = [
+    "flask",
+]
+
+[tool.setuptools.packages.find]
+include = ["basic_ui*"]
+
+[tool.setuptools.package-data]
+basic_ui = ["templates/*.html", "static/css/*.css", "static/js/*"]
