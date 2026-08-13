@@ -52,7 +52,10 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
     @app.route("/")
     def index():
-        return render_template("index.html")
+        return render_template(
+            "index.html",
+            agent_name=runtime.dashboard.get("name", "Basic Bot"),
+        )
 
     @app.route("/chat", methods=["POST"])
     def chat():
