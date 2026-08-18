@@ -41,3 +41,7 @@ Agents declare this in their `pyproject.toml`:
 Flask is included as a dependency of this package. The engine does
 not depend on basic-ui, and basic-ui does not depend on the engine
 at the package level — the agent repo wires them together.
+
+## License
+
+MIT
