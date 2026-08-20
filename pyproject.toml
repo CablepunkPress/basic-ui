@@ -11,6 +11,9 @@ dependencies = [
     "flask",
 ]
 
+[tool.setuptools.dynamic]
+version = {attr = "basic_ui.__version__"}
+
 [tool.setuptools.packages.find]
 include = ["basic_ui*"]
 
