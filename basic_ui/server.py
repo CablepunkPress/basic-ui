@@ -12,7 +12,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
-from basic_bot.chat import chat_with_claude
+from basic_bot.chat import chat_with_model
 from basic_bot.config import (
     DEFAULT_MODEL,
     HISTORY_LIMIT,
@@ -21,7 +21,6 @@ from basic_bot.config import (
 from basic_bot.factory import create_runtime
 from basic_bot.fold import build_metadata, fold_rag, fold_summary, should_fold
 from basic_bot.memory import get_messages
-from basic_bot.models import MODELS
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +75,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
         try:
             result = asyncio.run(
-                chat_with_claude(
+                chat_with_model(
                     runtime, user_id, message, model_id, effort, thinking,
                 )
             )
@@ -142,16 +141,18 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
     @app.route("/models", methods=["GET"])
     def models_endpoint():
+        models = runtime.provider.get_models()
         return jsonify({
             "models": {
                 mid: {
-                    "display_name": cfg["display_name"],
-                    "effort_levels": cfg["effort_levels"],
-                    "thinking_type": cfg["thinking_type"],
+                    "display_name": m.display_name,
+                    "effort_levels": m.effort_levels,
+                    "thinking_type": m.thinking_type,
+                    "rank": m.rank,
                 }
-                for mid, cfg in MODELS.items()
+                for mid, m in models.items()
             },
-            "default": DEFAULT_MODEL,
+            "default": runtime.provider.get_default_model(),
         })
 
     @app.route("/health", methods=["GET"])
