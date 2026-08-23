@@ -121,6 +121,7 @@ function populateModelSelector() {
   if (!modelSelect) return;
 
   modelSelect.innerHTML = Object.entries(models)
+    .sort((a, b) => (a[1].rank || 0) - (b[1].rank || 0))
     .map(([id, config]) =>
       `<option value="${id}"${id === selectedModel ? ' selected' : ''}>${config.display_name}</option>`
     ).join('');
