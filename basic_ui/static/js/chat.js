@@ -2,7 +2,7 @@
 // State
 // ----------------------
 
-/** @type {Record<string, {display_name: string, effort_levels: string[]|null, thinking_type: string}>} */
+/** @type {Record<string, {display_name: string, effort_levels: string[]|null, thinking_type: string, rank: number}>} */
 let models = {};
 
 /** @type {string} */
