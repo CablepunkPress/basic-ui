@@ -94,7 +94,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
             if chunk:
                 thread = threading.Thread(
                     target=fold_summary,
-                    args=(runtime.store, user_id, fold_state["summary"], chunk),
+                    args=(runtime.provider, runtime.store, user_id, fold_state["summary"], chunk),
                     daemon=True,
                 )
                 thread.start()
