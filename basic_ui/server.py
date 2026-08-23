@@ -14,7 +14,6 @@ from flask import Flask, jsonify, render_template, request
 
 from basic_bot.chat import chat_with_model
 from basic_bot.config import (
-    DEFAULT_MODEL,
     HISTORY_LIMIT,
     WINDOW_CEILING,
 )
@@ -41,7 +40,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
     logger.info("=" * 50)
     logger.info("%s starting locally", runtime.agent_id)
-    logger.info("Default model: %s", DEFAULT_MODEL)
+    logger.info("Default model: %s", runtime.provider.get_default_model())
     logger.info(
         "Tools: %d [%s]",
         len(runtime.tool_registry),
@@ -66,7 +65,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
-        model_id = data.get("model", DEFAULT_MODEL)
+        model_id = data.get("model", runtime.provider.get_default_model())
         effort = data.get("effort")
         thinking = data.get("thinking", False)
         user_id = DEFAULT_USER
