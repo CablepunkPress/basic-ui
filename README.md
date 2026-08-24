@@ -10,32 +10,32 @@ install it alongside the engine and call it from their `run.py`.
 
 ## What It Provides
 
+- Full local launch orchestration: secrets, llama-server, Flask, teardown
 - Dark-mode chat interface with markdown rendering (via marked.js)
-- Model selector with per-model effort levels and Deep Reasoning toggle
+- Model selector sorted by rank, with per-model effort levels and Deep Reasoning toggle
 - Conversation history loaded at startup
 - Agent name displayed from dashboard.json
 
 ## Usage
 
-An agent's `run.py` calls:
+An agent's `run.py` shim calls:
 
 ```python
-from basic_ui.server import create_local_app
+from basic_ui.launch import launch
 
-app = create_local_app("/path/to/agent")
-app.run(port=11555)
+launch("/path/to/agent")
 ```
 
-`create_local_app` calls the engine's `create_runtime()` internally,
-then wraps the result in Flask routes. The agent directory provides
-the identity, persona, and tools; basic-ui provides the interface.
+`launch()` loads API keys from the keyring, starts llama-server for
+embeddings if needed, creates the Flask app via the engine's
+`create_runtime()`, runs it, and tears down on Ctrl+C.
 
 ## Installing as a Dependency
 
 Agents declare this in their `pyproject.toml`:
 
 ```toml
-"basic-ui @ git+https://github.com/CablepunkPress/basic-ui.git@v0.2.0"
+"basic-ui @ git+https://github.com/CablepunkPress/basic-ui.git@main"
 ```
 
 Flask is included as a dependency of this package. The engine does
