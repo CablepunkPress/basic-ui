@@ -7,10 +7,11 @@ It receives a `BotRuntime` from the engine and wraps it in routes.
 
 | File | What it does |
 |------|--------------|
+| `launch.py` | `launch(agent_path)` — orchestrates a full local launch: loads secrets from keyring, starts llama-server if needed, creates the Flask app, runs it, tears down on exit. Entry point for build-a-bot's `run.py` shim. |
 | `server.py` | `create_local_app(agent_path)` — calls the engine factory, builds Flask routes for chat, history, models, and health. |
 | `templates/index.html` | Jinja2 template. Agent name injected via `{{ agent_name }}`. Markdown rendered client-side by marked.js. |
 | `static/css/styles.css` | Dark-mode styles, system font stack, responsive layout. |
-| `static/js/chat.js` | Single file, no modules, no auth. Handles message send/receive, model selection, history loading, markdown rendering. |
+| `static/js/chat.js` | Single file, no modules, no auth. Handles message send/receive, model selection, history loading, markdown rendering. Models sorted by rank from the provider. |
 
 ## Design Decisions
 
@@ -19,6 +20,17 @@ from `basic_bot` at runtime, but does not declare it in `pyproject.toml`.
 The agent repo depends on both and wires them together. This avoids
 circular version pinning — basic-ui and basic-bot can version
 independently.
+
+**Deferred imports in launch.py.** All basic-bot and basic-ui imports
+happen inside the `launch()` function, after secrets are loaded into
+the environment. This is required because the Anthropic client reads
+`ANTHROPIC_API_KEY` at import time. This workaround resolves naturally
+when the provider abstraction replaces the module-level client
+construction.
+
+**Models come from the provider.** The `/models` endpoint reads from
+`runtime.provider.get_models()` and includes a `rank` field for display
+ordering. The UI sorts models by rank rather than alphabetically.
 
 **Server-side rendering is not used.** The engine returns raw text;
 marked.js converts markdown to HTML in the browser. This matches the
