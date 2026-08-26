@@ -29,7 +29,7 @@ def launch(agent_path: Path) -> None:
     flask_port = config["flask_port"]
 
     from basic_bot.config import EMBEDDING_PROVIDER, EMBEDDING_URL
-    from basic_bot.infra.server import ensure, stop
+    from basic_bot.infrastructure.server import ensure, stop
 
     llama = ensure(EMBEDDING_URL) if EMBEDDING_PROVIDER == "local" else None
 
