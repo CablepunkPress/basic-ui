@@ -4,18 +4,18 @@ Orchestrates: secrets from keyring, llama-server if needed,
 Flask UI, and teardown on exit.
 """
 
-import json
+import tomllib
 from pathlib import Path
-
-DEFAULT_FLASK_PORT = 11555
 
 
 def _read_config(agent_path: Path) -> dict:
-    """Read config.json, falling back to defaults for missing fields."""
-    config_path = agent_path / "config.json"
-    if config_path.exists():
-        return json.loads(config_path.read_text())
-    return {}
+    """Read config.toml from the agent directory."""
+    config_path = agent_path / "config.toml"
+    if not config_path.exists():
+        raise FileNotFoundError(
+            f"No config.toml found in {agent_path}. Run 'python build.py' first."
+        )
+    return tomllib.loads(config_path.read_text())
 
 
 def launch(agent_path: Path) -> None:
@@ -26,7 +26,7 @@ def launch(agent_path: Path) -> None:
     load_secrets(agent_path)
 
     config = _read_config(agent_path)
-    flask_port = config.get("flask_port", DEFAULT_FLASK_PORT)
+    flask_port = config["flask_port"]
 
     from basic_bot.config import EMBEDDING_PROVIDER, EMBEDDING_URL
     from basic_bot.infra.server import ensure, stop
