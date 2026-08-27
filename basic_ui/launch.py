@@ -1,7 +1,7 @@
 """Launch a Basic Bot agent locally.
 
 Orchestrates: secrets from keyring, embedding server, inference
-server (if local), Flask UI, and teardown on exit.
+server (always, for summary), Flask UI, and teardown on exit.
 """
 
 import tomllib
@@ -33,11 +33,10 @@ def launch(agent_path: Path) -> None:
 
     llama_embed = ensure_embedding(EMBEDDING_URL) if EMBEDDING_PROVIDER == "local" else None
 
-    inference_provider = config.get("inference_provider") or "claude"
-    llama_infer = None
-    if inference_provider == "local":
-        model_id = config.get("default_model") or "qwen3-8b-q4_k_m"
-        llama_infer = ensure_inference(model_id, INFERENCE_URL)
+    # Inference server is permanent infrastructure — summary always
+    # runs locally regardless of chat provider selection.
+    summary_model = config.get("summary_model") or "qwen3-8b-q4_k_m"
+    llama_infer = ensure_inference(summary_model, INFERENCE_URL)
 
     try:
         from basic_ui.server import create_local_app
