@@ -1,7 +1,7 @@
 """Launch a Basic Bot agent locally.
 
-Orchestrates: secrets from keyring, llama-server if needed,
-Flask UI, and teardown on exit.
+Orchestrates: secrets from keyring, embedding server, inference
+server (if local), Flask UI, and teardown on exit.
 """
 
 import tomllib
@@ -19,7 +19,7 @@ def _read_config(agent_path: Path) -> dict:
 
 
 def launch(agent_path: Path) -> None:
-    """Full local launch: secrets, llama-server, Flask UI."""
+    """Full local launch: secrets, servers, Flask UI."""
     agent_path = Path(agent_path)
 
     from basic_bot.secrets_env import load as load_secrets
@@ -28,15 +28,23 @@ def launch(agent_path: Path) -> None:
     config = _read_config(agent_path)
     flask_port = config["flask_port"]
 
-    from basic_bot.config import EMBEDDING_PROVIDER, EMBEDDING_URL
-    from basic_bot.infrastructure.server import ensure, stop
+    from basic_bot.config import EMBEDDING_PROVIDER, EMBEDDING_URL, INFERENCE_URL
+    from basic_bot.infrastructure.server import ensure_embedding, ensure_inference, stop
 
-    llama = ensure(EMBEDDING_URL) if EMBEDDING_PROVIDER == "local" else None
+    llama_embed = ensure_embedding(EMBEDDING_URL) if EMBEDDING_PROVIDER == "local" else None
+
+    inference_provider = config.get("inference_provider") or "claude"
+    llama_infer = None
+    if inference_provider == "local":
+        model_id = config.get("default_model") or "qwen3-8b-q4_k_m"
+        llama_infer = ensure_inference(model_id, INFERENCE_URL)
 
     try:
         from basic_ui.server import create_local_app
         app = create_local_app(agent_path)
         app.run(port=flask_port, debug=True, use_reloader=False)
     finally:
-        if llama is not None:
-            stop(llama)
+        if llama_embed is not None:
+            stop(llama_embed)
+        if llama_infer is not None:
+            stop(llama_infer)
