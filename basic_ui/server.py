@@ -151,7 +151,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
     @app.route("/models", methods=["GET"])
     def models_endpoint():
-        models = runtime.provider.get_models()
+        models = runtime.chat_provider.get_models()
         return jsonify({
             "models": {
                 mid: {
@@ -162,7 +162,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
                 }
                 for mid, m in models.items()
             },
-            "default": runtime.provider.get_default_model(),
+            "default": runtime.chat_provider.get_default_model(),
         })
 
     @app.route("/health", methods=["GET"])
