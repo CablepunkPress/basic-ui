@@ -14,6 +14,7 @@ from flask import Flask, jsonify, render_template, request
 
 from basic_bot.chat import chat_with_model
 from basic_bot.config import (
+    FOLD_MODE,
     HISTORY_LIMIT,
     WINDOW_CEILING,
 )
@@ -40,7 +41,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
     logger.info("=" * 50)
     logger.info("%s starting locally", runtime.agent_id)
-    logger.info("Default model: %s", runtime.provider.get_default_model())
+    logger.info("Default model: %s", runtime.chat_provider.get_default_model())
     logger.info(
         "Tools: %d [%s]",
         len(runtime.tool_registry),
@@ -65,7 +66,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
-        model_id = data.get("model", runtime.provider.get_default_model())
+        model_id = data.get("model", runtime.chat_provider.get_default_model())
         effort = data.get("effort")
         thinking = data.get("thinking", False)
         user_id = DEFAULT_USER
@@ -92,13 +93,23 @@ def create_local_app(agent_path: str | Path) -> Flask:
         if fold_state:
             chunk = fold_rag(runtime.store, user_id, fold_state)
             if chunk:
-                thread = threading.Thread(
-                    target=fold_summary,
-                    args=(runtime.provider, runtime.store, user_id, fold_state["summary"], chunk),
-                    daemon=True,
-                )
-                thread.start()
-                logger.info("Fold triggered — RAG done, summary in background")
+                if FOLD_MODE == "sync":
+                    logger.info("Fold triggered — RAG done, summarizing (sync)")
+                    fold_summary(
+                        runtime.summary_provider, runtime.store,
+                        user_id, fold_state["summary"], chunk,
+                    )
+                else:
+                    thread = threading.Thread(
+                        target=fold_summary,
+                        args=(
+                            runtime.summary_provider, runtime.store,
+                            user_id, fold_state["summary"], chunk,
+                        ),
+                        daemon=True,
+                    )
+                    thread.start()
+                    logger.info("Fold triggered — RAG done, summary in background")
 
         return jsonify({
             "response": result["reply"],
