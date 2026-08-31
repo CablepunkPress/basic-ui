@@ -1,7 +1,9 @@
-"""Launch a Basic Bot agent locally.
+"""Launch a Bountiful agent locally.
 
-Orchestrates: secrets from keyring, embedding server, inference
-server (always, for summary), Flask UI, and teardown on exit.
+Orchestrates: secrets from keyring (if configured), chat server,
+Flask UI, and teardown on exit.
+
+Embedding and summary servers start on demand during fold.
 """
 
 import tomllib
@@ -19,31 +21,23 @@ def _read_config(agent_path: Path) -> dict:
 
 
 def launch(agent_path: Path) -> None:
-    """Full local launch: secrets, servers, Flask UI."""
+    """Full local launch: secrets, chat server, Flask UI."""
     agent_path = Path(agent_path)
 
     from basic_bot.secrets_env import load as load_secrets
     load_secrets(agent_path)
 
     config = _read_config(agent_path)
-    flask_port = config["flask_port"]
+    flask_port = config.get("flask_port", 11777)
 
-    from basic_bot.config import EMBEDDING_PROVIDER, EMBEDDING_URL, INFERENCE_URL
-    from basic_bot.infrastructure.server import ensure_embedding, ensure_inference, stop
+    from basic_bot.infrastructure.server import start, stop_all, CHAT
 
-    llama_embed = ensure_embedding(EMBEDDING_URL) if EMBEDDING_PROVIDER == "local" else None
-
-    # Inference server is permanent infrastructure — summary always
-    # runs locally regardless of chat provider selection.
-    summary_model = config.get("summary_model") or "qwen3-8b-q4_k_m"
-    llama_infer = ensure_inference(summary_model, INFERENCE_URL)
+    start(CHAT)
 
     try:
-        from basic_ui.server import create_local_app
+        from basic_ui.app import create_local_app
         app = create_local_app(agent_path)
         app.run(port=flask_port, debug=True, use_reloader=False)
     finally:
-        if llama_embed is not None:
-            stop(llama_embed)
-        if llama_infer is not None:
-            stop(llama_infer)
+        print("\nShutting down")
+        stop_all()
