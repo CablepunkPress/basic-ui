@@ -1,4 +1,4 @@
-"""Generic local Flask server for a Basic Bot agent.
+"""Local Flask server for a Bountiful agent.
 
 Single user, no auth. Serves the chat UI and talks directly to the
 engine. The agent is defined entirely by its directory — persona.md,
@@ -7,19 +7,17 @@ dashboard.json, and optional tools/.
 
 import asyncio
 import logging
-import threading
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
 from basic_bot.chat import chat_with_model
 from basic_bot.config import (
-    FOLD_MODE,
     HISTORY_LIMIT,
     WINDOW_CEILING,
 )
 from basic_bot.factory import create_runtime
-from basic_bot.fold import build_metadata, fold_rag, fold_summary, should_fold
+from basic_bot.fold import build_metadata, fold_sequential, should_fold
 from basic_bot.memory import get_messages
 
 logger = logging.getLogger(__name__)
@@ -91,25 +89,7 @@ def create_local_app(agent_path: str | Path) -> Flask:
 
         fold_state = should_fold(runtime.store, user_id)
         if fold_state:
-            chunk = fold_rag(runtime.store, user_id, fold_state)
-            if chunk:
-                if FOLD_MODE == "sync":
-                    logger.info("Fold triggered — RAG done, summarizing (sync)")
-                    fold_summary(
-                        runtime.summary_provider, runtime.store,
-                        user_id, fold_state["summary"], chunk,
-                    )
-                else:
-                    thread = threading.Thread(
-                        target=fold_summary,
-                        args=(
-                            runtime.summary_provider, runtime.store,
-                            user_id, fold_state["summary"], chunk,
-                        ),
-                        daemon=True,
-                    )
-                    thread.start()
-                    logger.info("Fold triggered — RAG done, summary in background")
+            fold_sequential(runtime, runtime.store, user_id, fold_state)
 
         return jsonify({
             "response": result["reply"],
