@@ -17,7 +17,8 @@ from basic_bot.config import (
     WINDOW_CEILING,
 )
 from basic_bot.factory import create_runtime
-from basic_bot.fold import build_metadata, fold_sequential, should_fold
+from basic_bot.fold import build_metadata, should_fold
+from basic_bot.infrastructure.orchestration import fold_sequential
 from basic_bot.memory import get_messages
 
 logger = logging.getLogger(__name__)
