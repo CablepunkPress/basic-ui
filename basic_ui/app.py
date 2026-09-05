@@ -1,22 +1,17 @@
 """Local Flask server for a Bountiful agent.
 
-Single user, no auth. Serves the chat UI and talks directly to the
-engine. The agent is defined entirely by its directory — persona.md,
-dashboard.json, and optional tools/.
+Single user, no auth. Receives a ready BotRuntime from launch.py
+and wraps it in Flask routes. Does not build the runtime, start
+servers, or manage infrastructure.
 """
 
 import asyncio
 import logging
-from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
 from basic_bot.chat import chat_with_model
-from basic_bot.config import (
-    HISTORY_LIMIT,
-    WINDOW_CEILING,
-)
-from basic_bot.factory import create_runtime
+from basic_bot.config import HISTORY_LIMIT, WINDOW_CEILING
 from basic_bot.fold import build_metadata, should_fold
 from basic_bot.infrastructure.orchestration import fold_sequential
 from basic_bot.memory import get_messages
@@ -26,12 +21,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_USER = "local"
 
 
-def create_local_app(agent_path: str | Path) -> Flask:
-    """Build a Flask app for the agent at the given directory."""
+def create_local_app(runtime) -> Flask:
+    """Build a Flask app from a ready runtime."""
 
-    runtime = create_runtime(agent_path)
-
-    ui_dir = Path(__file__).parent
+    ui_dir = __import__("pathlib").Path(__file__).parent
     app = Flask(
         __name__,
         template_folder=str(ui_dir / "templates"),
