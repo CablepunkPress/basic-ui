@@ -10,8 +10,8 @@ import logging
 
 from flask import Flask, jsonify, render_template, request
 
+import basic_bot.config as config
 from basic_bot.chat import chat_with_model
-from basic_bot.config import HISTORY_LIMIT, WINDOW_CEILING
 from basic_bot.fold import build_metadata, should_fold
 from basic_bot.infrastructure.orchestration import fold_sequential
 from basic_bot.memory import get_messages
@@ -102,11 +102,11 @@ def create_local_app(runtime) -> Flask:
         limit_param = request.args.get("limit")
         if limit_param:
             try:
-                limit = min(int(limit_param), WINDOW_CEILING)
+                limit = min(int(limit_param), config.WINDOW_CEILING)
             except ValueError:
-                limit = HISTORY_LIMIT
+                limit = config.HISTORY_LIMIT
         else:
-            limit = HISTORY_LIMIT
+            limit = config.HISTORY_LIMIT
 
         messages = get_messages(runtime.store, user_id, limit)
 
