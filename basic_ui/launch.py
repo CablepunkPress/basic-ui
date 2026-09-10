@@ -41,7 +41,12 @@ def launch(agent_path: Path) -> None:
     from basic_bot.factory import create_runtime
 
     load_secrets(agent_path)
-    start(CHAT)
+    
+    # Only start the chat server if not configured for API-first
+    provider = config_toml.get("inference_provider", "local")
+    if provider != "claude":
+        start(CHAT)
+
     runtime = create_runtime(agent_path)
 
     try:
