@@ -130,6 +130,7 @@ def create_local_app(runtime) -> Flask:
             "models": {
                 mid: {
                     "display_name": m.display_name,
+                    "host": m.host,
                     "effort_levels": m.effort_levels,
                     "thinking_type": m.thinking_type,
                     "rank": m.rank,
