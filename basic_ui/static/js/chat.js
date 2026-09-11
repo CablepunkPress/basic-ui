@@ -15,7 +15,7 @@ let selectedModel = '';
 let selectedEffort = null;
 
 /** @type {boolean} */
-let thinkingEnabled = true;
+let thinkingEnabled = false;
 
 /** @type {number} */
 let nextSeq = 1;
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     thinkingToggle.addEventListener('change', (e) => {
       thinkingEnabled = /** @type {HTMLInputElement} */ (e.target).checked;
     });
-    /** @type {HTMLInputElement} */ (thinkingToggle).checked = true;
+    /** @type {HTMLInputElement} */ (thinkingToggle).checked = false;
   }
 
   // Send button
