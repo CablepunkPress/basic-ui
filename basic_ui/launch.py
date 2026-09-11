@@ -9,8 +9,11 @@ Engine work is delegated to basic-bot. The Flask app is delegated
 to basic-ui's app module. This module sequences them.
 """
 
+import logging
 import tomllib
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def _read_config(agent_path: Path) -> dict:
@@ -41,7 +44,7 @@ def launch(agent_path: Path) -> None:
     from basic_bot.factory import create_runtime
 
     load_secrets(agent_path)
-    
+
     # Only start the chat server if not configured for API-first
     provider = config_toml.get("inference_provider", "local")
     if provider != "claude":
@@ -60,5 +63,6 @@ def launch(agent_path: Path) -> None:
             use_reloader=ui_config.USE_RELOADER,
         )
     finally:
-        print("\nShutting down")
+        logger.info("Shutting down")
+        logger.info("Flask server stopped")
         stop_all()
