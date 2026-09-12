@@ -63,6 +63,7 @@ def launch(agent_path: Path) -> None:
             use_reloader=ui_config.USE_RELOADER,
         )
     finally:
+        print()
         logger.info("Shutting down")
         logger.info("Flask server stopped")
         stop_all()
