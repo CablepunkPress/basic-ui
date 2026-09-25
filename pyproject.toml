@@ -11,6 +11,9 @@ dependencies = [
     "flask",
 ]
 
+[tool.pyright]
+pythonVersion = "3.14"
+
 [tool.setuptools.dynamic]
 version = {attr = "basic_ui.__version__"}
 
