@@ -1,7 +1,7 @@
 """Launch a Bountiful agent locally.
 
 Orchestrates the full lifecycle: loads secrets, applies config
-overrides, starts the chat server, builds the runtime, starts
+overrides, builds the runtime, starts the default model, starts
 Flask, and tears everything down on exit.
 
 This is the single entry point called by bountiful's run.py shim.
@@ -10,6 +10,7 @@ to basic-ui's app module. This module sequences them.
 """
 
 import logging
+import sys
 import tomllib
 from pathlib import Path
 
@@ -25,7 +26,7 @@ def _read_config(agent_path: Path) -> dict:
 
 
 def launch(agent_path: Path) -> None:
-    """Full local launch: overrides, secrets, servers, runtime, Flask UI."""
+    """Full local launch: overrides, secrets, runtime, model, Flask UI."""
     agent_path = Path(agent_path)
 
     # Read config.toml and apply overrides FIRST — before any other
@@ -40,19 +41,22 @@ def launch(agent_path: Path) -> None:
 
     # Now proceed — all config values reflect any user overrides
     from basic_bot.secrets_env import load as load_secrets
-    from basic_bot.infrastructure.server import start, stop_all, CHAT
+    from basic_bot.infrastructure.server import ServerError, stop_all
     from basic_bot.factory import create_runtime
 
     load_secrets(agent_path)
 
-    # Only start the chat server if not configured for API-first
-    provider = config_toml.get("inference_provider", "local")
-    if provider != "claude":
-        start(CHAT)
-
     runtime = create_runtime(agent_path)
 
     try:
+        # Start the agent's default model. A local default starts its
+        # server; an API default starts nothing.
+        try:
+            registry = runtime.chat_provider
+            registry.select(registry.get_default_model())
+        except ServerError as e:
+            sys.exit(f"\nERROR: {e}")
+
         import basic_ui.config as ui_config
         from basic_ui.app import create_local_app
 
