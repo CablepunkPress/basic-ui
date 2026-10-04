@@ -15,6 +15,7 @@ from basic_bot.chat import chat_with_model
 from basic_bot.fold import build_metadata, should_fold
 from basic_bot.infrastructure.orchestration import fold_sequential
 from basic_bot.memory import get_messages
+from basic_bot.providers.protocol import REASONING_OPTIONAL
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +59,15 @@ def create_local_app(runtime) -> Flask:
         if not message:
             return jsonify({"error": "Message is required"}), 400
 
-        model_id = data.get("model", runtime.chat_provider.get_default_model())
-        effort = data.get("effort")
-        thinking = data.get("thinking", False)
+        model_id = data.get("model") or runtime.chat_provider.get_default_model()
+
+        # Missing settings mean "use the model's default." The engine
+        # resolves them, so the UI never has to know the defaults.
+        effort = data.get("effort") or None
+        thinking = data.get("thinking")
+        if not isinstance(thinking, bool):
+            thinking = None
+
         user_id = DEFAULT_USER
 
         logger.info("Chat — model: %s (%d chars)", model_id, len(message))
@@ -83,7 +90,12 @@ def create_local_app(runtime) -> Flask:
 
         fold_state = should_fold(runtime.store, user_id)
         if fold_state:
-            fold_sequential(runtime, runtime.store, user_id, fold_state)
+            try:
+                fold_sequential(runtime, runtime.store, user_id, fold_state)
+            except Exception:
+                # The turn is saved and the reply is ready. The boundary
+                # didn't move, so the fold runs again next turn.
+                logger.exception("Fold failed — will retry next turn")
 
         return jsonify({
             "response": result["reply"],
@@ -131,9 +143,20 @@ def create_local_app(runtime) -> Flask:
                 mid: {
                     "display_name": m.display_name,
                     "host": m.host,
-                    "effort_levels": m.effort_levels,
-                    "thinking_type": m.thinking_type,
+                    "provider": m.provider,
+                    "family": m.family,
                     "rank": m.rank,
+                    "reasoning": m.reasoning,
+                    "reasoning_default": m.reasoning_default,
+                    "effort_levels": m.effort_levels,
+                    "effort_default": m.effort_default,
+                    "effort_needs_reasoning": m.effort_needs_reasoning,
+                    # Transitional, for the current chat.js: truthy only
+                    # where the Deep Reasoning toggle means something.
+                    # Remove in the HTMX pass.
+                    "thinking_type": (
+                        m.reasoning if m.reasoning == REASONING_OPTIONAL else None
+                    ),
                 }
                 for mid, m in models.items()
             },
