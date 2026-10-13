@@ -23,4 +23,9 @@ version = {attr = "basic_ui.__version__"}
 include = ["basic_ui*"]
 
 [tool.setuptools.package-data]
-basic_ui = ["templates/*.html", "static/css/*.css", "static/js/*"]
+basic_ui = [
+    "templates/*.html",
+    "templates/partials/*.html",
+    "static/css/*.css",
+    "static/js/*",
+]
