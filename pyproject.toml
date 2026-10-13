@@ -10,6 +10,7 @@ requires-python = ">=3.14"
 dependencies = [
     "flask",
     "markdown-it-py>=3",
+    "markupsafe>=2",
 ]
 
 [tool.pyright]
