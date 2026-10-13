@@ -1,0 +1,12 @@
+{% from "_macros.html" import drawer, system_message %}
+{{ drawer(controls) }}
+{% if notice %}
+<hx-partial hx-target="#messages" hx-swap="beforeend">
+  {{ system_message(notice) }}
+</hx-partial>
+{% endif %}
+{% if error %}
+<hx-partial hx-target="#messages" hx-swap="beforeend">
+  {{ system_message(error, kind="error") }}
+</hx-partial>
+{% endif %}

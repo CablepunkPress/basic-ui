@@ -1,0 +1,16 @@
+{% from "_macros.html" import message, composer %}
+{{ message(assistant) }}
+{% if update_due %}
+<div class="message message-system message-working" id="pending-memory"
+     hx-post="/memory" hx-trigger="load" hx-swap="outerHTML">
+  Updating memory…
+</div>
+{% endif %}
+<hx-partial hx-target="#pending-user" hx-swap="outerHTML">
+  {{ message(user) }}
+</hx-partial>
+{% if not update_due %}
+<hx-partial hx-target="#composer" hx-swap="outerHTML">
+  {{ composer() }}
+</hx-partial>
+{% endif %}

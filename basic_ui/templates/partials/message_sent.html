@@ -1,0 +1,13 @@
+{% from "_macros.html" import composer %}
+<div class="message message-user" id="pending-user">
+  <span class="message-seq">#…</span>
+  <div class="message-content">{{ text }}</div>
+</div>
+<form class="message message-system message-working" id="pending-reply"
+      hx-post="/reply" hx-trigger="load" hx-swap="outerHTML">
+  <input type="hidden" name="message" value="{{ text }}">
+  Thinking…
+</form>
+<hx-partial hx-target="#composer" hx-swap="outerHTML">
+  {{ composer(busy=True) }}
+</hx-partial>
