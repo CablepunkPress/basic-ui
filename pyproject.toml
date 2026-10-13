@@ -9,6 +9,7 @@ description = "Reference chat UI for Basic Bot agents"
 requires-python = ">=3.14"
 dependencies = [
     "flask",
+    "markdown-it-py>=3",
 ]
 
 [tool.pyright]
