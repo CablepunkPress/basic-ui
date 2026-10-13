@@ -1,5 +1,9 @@
 {% from "_macros.html" import system_message, composer %}
-{% if error %}{{ system_message(error, kind="error") }}{% endif %}
+{% if error %}
+{{ system_message(error, kind="error") }}
+{% else %}
+{{ system_message("Memory updated.") }}
+{% endif %}
 <hx-partial hx-target="#composer" hx-swap="outerHTML">
   {{ composer() }}
 </hx-partial>
