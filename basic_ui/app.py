@@ -163,9 +163,15 @@ def create_app(session) -> Flask:
     @app.post("/memory")
     def memory():
         try:
-            session.update_memory()
+            updated = session.update_memory()
         except SessionError as e:
             return render_template("partials/memory_done.html", error=str(e))
+        if not updated:
+            return render_template(
+                "partials/memory_done.html",
+                error="Memory couldn't be updated this time. "
+                      "It will try again before the next reply.",
+            )
         return render_template("partials/memory_done.html", error=None)
 
     # --- Settings, from the drawer ---
