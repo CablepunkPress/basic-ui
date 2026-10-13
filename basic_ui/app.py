@@ -20,6 +20,7 @@ decides when the next message can be sent.
 import logging
 
 from flask import Flask, render_template, request
+from werkzeug.exceptions import HTTPException
 
 from basic_bot.session import SessionBusy, SessionError
 from basic_ui.render import to_html
@@ -82,6 +83,28 @@ def create_app(session) -> Flask:
     def security_headers(response):
         response.headers["Content-Security-Policy"] = CSP
         return response
+
+    @app.errorhandler(Exception)
+    def unexpected_error(e):
+        """Show an unexpected failure as a system message.
+
+        htmx 4 swaps error responses into the page, so a request from
+        htmx gets a fragment, redirected into the conversation: the
+        error is added, any "Thinking…" or "Updating memory…" notice is
+        removed, and the message box is enabled again. Anything else,
+        like the page itself failing to load, gets plain text. Ordinary
+        HTTP errors, like a missing file, pass through unchanged.
+        """
+        if isinstance(e, HTTPException):
+            return e
+        logger.exception("Unexpected error on %s %s", request.method, request.path)
+        if "HX-Request-Type" not in request.headers:
+            return "Something went wrong. The terminal shows the details.", 500
+        return (
+            render_template("partials/unexpected_error.html"),
+            500,
+            {"HX-Retarget": "#messages", "HX-Reswap": "beforeend"},
+        )
 
     @app.context_processor
     def shared():

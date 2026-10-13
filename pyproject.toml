@@ -11,6 +11,7 @@ dependencies = [
     "flask",
     "markdown-it-py>=3",
     "markupsafe>=2",
+    "werkzeug",
 ]
 
 [tool.pyright]
