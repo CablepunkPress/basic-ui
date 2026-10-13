@@ -1,0 +1,84 @@
+{% macro message(m) -%}
+{% if m.role == "user" -%}
+<div class="message message-user" id="msg-{{ m.seq }}">
+  <span class="message-seq">#{{ m.seq }}</span>
+  <div class="message-content">{{ m.text }}</div>
+</div>
+{%- else -%}
+<div class="message message-agent" id="msg-{{ m.seq }}">
+  <span class="message-seq">#{{ m.seq }}</span>
+  <div class="message-content">{{ m.html }}</div>
+  {% if m.badge %}<div class="message-meta">{{ m.badge }}</div>{% endif %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+
+{% macro system_message(text, kind="notice") -%}
+<div class="message message-system message-{{ kind }}">{{ text }}</div>
+{%- endmacro %}
+
+
+{% macro composer(busy=False, text="") -%}
+<form id="composer" class="composer"
+      hx-post="/message" hx-target="#messages" hx-swap="beforeend">
+  <fieldset {% if busy %}disabled{% endif %}>
+    <textarea name="message" rows="1" placeholder="Type a message...">{{ text }}</textarea>
+    <button type="submit">Send</button>
+  </fieldset>
+</form>
+{%- endmacro %}
+
+
+{#
+  Every control in the drawer posts its change and gets the redrawn
+  drawer back. The shared settings are marked :inherited, as htmx 4
+  requires, so each control only names its own URL.
+#}
+{% macro drawer(c) -%}
+<div id="drawer-controls" class="drawer-controls"
+     hx-target:inherited="#drawer-controls"
+     hx-swap:inherited="outerHTML"
+     hx-indicator:inherited="#drawer-busy"
+     hx-disable:inherited="#drawer-controls select, #drawer-controls input">
+
+  {% if c.hosts|length > 1 %}
+  <label class="drawer-field">Host
+    <select name="host" hx-post="/settings/host">
+      {% for h in c.hosts %}
+      <option value="{{ h }}"{% if h == c.host %} selected{% endif %}>{{ host_names.get(h, h) }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% endif %}
+
+  <label class="drawer-field">Model
+    <select name="model_id" hx-post="/settings/model">
+      {% for m in c.models %}
+      <option value="{{ m.id }}"{% if m.id == c.model.id %} selected{% endif %}>{{ m.display_name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  {% if c.effort_levels %}
+  <label class="drawer-field">Effort
+    <select name="level" hx-post="/settings/effort">
+      {% for level in c.effort_levels %}
+      <option value="{{ level }}"{% if level == c.effort %} selected{% endif %}>{{ level|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% endif %}
+
+  {% if c.reasoning_shown %}
+  <label class="drawer-toggle">
+    <input type="checkbox" name="on" value="true" hx-post="/settings/reasoning"
+           {%- if c.reasoning_on %} checked{% endif %}
+           {%- if c.reasoning_locked %} disabled{% endif %}>
+    Deep Reasoning{% if c.reasoning_locked %} (always on){% endif %}
+  </label>
+  {% endif %}
+
+  <p id="drawer-busy" class="htmx-indicator drawer-busy">Working…</p>
+</div>
+{%- endmacro %}
