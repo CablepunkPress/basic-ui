@@ -288,76 +288,99 @@ body {
    Message box
    ================================ */
 
+/* No bar of its own: the box floats below the conversation, the same
+   width as the messages above it. */
 .composer-area {
-  padding: 0.75rem 1rem 1rem;
-  background: var(--bg-bar);
-  border-top: 1px solid var(--border);
+  padding: 0 0 1.25rem;
 }
 
 .composer {
   max-width: var(--column);
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
+/* The fieldset is the visible box; the text area and the send button
+   sit inside it, the button at the bottom right. */
 .composer fieldset {
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
   margin: 0;
-  padding: 0;
-  border: none;
+  padding: 0.5rem 0.5rem 0.5rem 0.9rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   min-width: 0;
+  transition: border-color 0.2s;
+}
+
+.composer fieldset:focus-within {
+  border-color: var(--border-strong);
 }
 
 .composer textarea {
   flex: 1;
-  min-height: 2.75rem;
+  min-height: 1.5rem;
   max-height: 12rem;
-  padding: 0.65rem 0.75rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 0.35rem 0;
+  background: transparent;
+  border: none;
   color: var(--text);
   font: inherit;
   line-height: 1.5;
   resize: none;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.composer textarea::-webkit-scrollbar {
+  display: none;
 }
 
 .composer textarea:focus {
   outline: none;
-  border-color: var(--border-strong);
 }
 
 .composer textarea::placeholder {
   color: var(--text-faint);
 }
 
-.composer button {
-  padding: 0.65rem 1.25rem;
-  background: var(--bg-user);
-  color: var(--text);
+/* The send button: just the icon, lighting up in a small box on hover */
+.composer .send {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  color: var(--text-muted);
   border: none;
   border-radius: 6px;
-  font: inherit;
-  font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
-.composer button:hover {
-  background: var(--bg-user-hover);
+.composer .send:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
 }
 
 /* While the agent is working, the whole box is disabled */
-.composer fieldset:disabled textarea,
-.composer fieldset:disabled button {
+.composer fieldset:disabled {
   opacity: 0.5;
+}
+
+.composer fieldset:disabled textarea,
+.composer fieldset:disabled .send {
   cursor: not-allowed;
 }
 
-.composer fieldset:disabled button:hover {
-  background: var(--bg-user);
+.composer fieldset:disabled .send:hover {
+  background: transparent;
+  color: var(--text-muted);
 }
 
 /* ================================

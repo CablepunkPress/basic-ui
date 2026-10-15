@@ -24,10 +24,14 @@
     if (box && !box.matches(':disabled')) box.focus();
   }
 
-  // The box grows with its text, up to the height set in the stylesheet
+  // The box grows with its text, up to the stylesheet's max-height.
+  // scrollHeight leaves out the border, so it's added back; without
+  // it, the box is a hair too short and the browser adds a scroll bar.
   function fit(box) {
     box.style.height = 'auto';
-    box.style.height = box.scrollHeight + 'px';
+    const border = box.offsetHeight - box.clientHeight;
+    const max = parseFloat(getComputedStyle(box).maxHeight);
+    box.style.height = Math.min(box.scrollHeight + border, max) + 'px';
   }
 
   document.addEventListener('input', function (e) {
