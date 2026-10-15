@@ -9,6 +9,7 @@
   });
 
   const conversation = document.getElementById('conversation');
+  const messages = document.getElementById('messages');
 
   function scrollToEnd() {
     conversation.scrollTop = conversation.scrollHeight;
@@ -43,6 +44,42 @@
 
   // After every update: newest message in view, box ready to type in
   document.body.addEventListener('htmx:after:settle', function () {
+    scrollToEnd();
+    focusComposer();
+  });
+
+  function systemMessage(text, kind) {
+    const div = document.createElement('div');
+    div.className = 'message message-system message-' + kind;
+    div.textContent = text;
+    messages.appendChild(div);
+  }
+
+  document.body.addEventListener('htmx:error', function (e) {
+    const error = e.detail && e.detail.error;
+    if (!(error instanceof TypeError)) return;
+
+    // Whatever was waiting won't finish
+    for (const id of ['pending-reply', 'pending-memory']) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+    const pending = document.getElementById('pending-user');
+    if (pending) {
+      pending.removeAttribute('id');
+      pending.classList.add('message-unsent');
+      const seq = pending.querySelector('.message-seq');
+      if (seq) seq.textContent = 'Not sent';
+    }
+
+    systemMessage(
+      "Your agent isn't responding. If it was stopped, start it again with " +
+      "python3 run.py, then reload this page.",
+      'error'
+    );
+
+    const fieldset = document.querySelector('#composer fieldset');
+    if (fieldset) fieldset.disabled = false;
     scrollToEnd();
     focusComposer();
   });
