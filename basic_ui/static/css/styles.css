@@ -9,26 +9,50 @@
 :root {
   color-scheme: dark;
 
-  /* All colors defined here */
+  /* Surfaces */
   --bg: #131314;
   --bg-bar: #0a0a0a;
   --bg-input: #141414;
-  --bg-agent: #1e1e1e;
-  --bg-user: #1a3a5c;
-  --bg-user-hover: #245080;
-  --bg-code: #2a2a2a;
+  --bg-drawer: rgba(13, 13, 13, 0.92);
   --border: #2a2a2a;
   --border-strong: #444;
+
+  /* Bubbles: the agent's blue, and a green matched to it */
+  --bg-agent: #1a3a5c;
+  --bg-user: #185431;
+  --accent: #1a3a5c;
+
+  /* Text */
   --text: #e0e0e0;
   --text-muted: #888;
   --text-faint: #555;
   --text-seq: #bfbfbf;
+  --text-meta: rgba(255, 255, 255, 0.45);
   --text-error: #e08a8a;
-  --link: #5b9bd5;
-  --link-hover: #7bb3e8;
-  --link-visited: #9b8ec4;
-  --heading: #4c6e91;
-  --strong: #7994af;
+
+  /* Inside the agent's blue bubbles, lighter tints stay readable */
+  --agent-heading: #a9c7e6;
+  --agent-strong: #d4e4f4;
+  --agent-link: #9ccbff;
+  --agent-link-hover: #c4e0ff;
+  --agent-link-visited: #c3b8ec;
+  --agent-link-underline: rgba(156, 203, 255, 0.45);
+  --agent-link-underline-hover: rgba(196, 224, 255, 0.8);
+
+  /* Translucent lines, faintest to strongest. They lighten whatever
+     is behind them, so they work on any background. */
+  --line-faint: rgba(255, 255, 255, 0.08);
+  --line-soft: rgba(255, 255, 255, 0.1);
+  --line: rgba(255, 255, 255, 0.15);
+  --line-strong: rgba(255, 255, 255, 0.25);
+
+  /* Translucent shades, which darken whatever is behind them */
+  --shade: rgba(0, 0, 0, 0.3);
+  --shade-soft: rgba(0, 0, 0, 0.2);
+  --shadow: rgba(0, 0, 0, 0.4);
+
+  /* The glow behind a button on hover */
+  --hover: rgba(255, 255, 255, 0.08);
 
   /* The reading column, shared by the conversation and the message box */
   --column: 800px;
@@ -45,7 +69,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--link);
+  outline: 2px solid var(--agent-link);
   outline-offset: 2px;
 }
 
@@ -68,7 +92,7 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Hamburger button. the padding makes the
+/* Hamburger button. The padding makes the
    whole area around the lines clickable; the z-index keeps it above
    the open drawer, so the X can close it. */
 .hamburger {
@@ -115,11 +139,11 @@ body {
   width: 280px;
   height: 100vh;
   padding: 4rem 1.25rem 1.25rem;
-  background: rgba(13, 13, 13, 0.92);
+  background: var(--bg-drawer);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-left: 1px solid var(--border);
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.4);
+  box-shadow: -2px 0 8px var(--shadow);
   transform: translateX(100%);
   visibility: hidden;
   transition: transform 0.3s ease, visibility 0.3s ease;
@@ -176,7 +200,7 @@ body {
 }
 
 .drawer-toggle input {
-  accent-color: var(--bg-user);
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
@@ -195,6 +219,8 @@ body {
    Conversation
    ================================ */
 
+/* The gutter is reserved on both sides, so the column of messages is
+   centered in the same width as the message box below it. */
 .conversation {
   flex: 1;
   overflow-y: auto;
@@ -249,10 +275,10 @@ body {
 
 .message-meta {
   font-size: 0.7rem;
-  color: var(--text-faint);
+  color: var(--text-meta);
   margin-top: 0.5rem;
   padding-top: 0.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--line-soft);
 }
 
 /* ================================
@@ -289,8 +315,8 @@ body {
    Message box
    ================================ */
 
-/* No bar of its own: the box floats below the conversation, the same
-   width as the messages above it. */
+/* A bar matching the top bar, so the conversation's scroll area has a
+   clear edge at both ends. The box inside keeps its own color. */
 .composer-area {
   padding: 1.25rem 0;
   background: var(--bg-bar);
@@ -367,7 +393,7 @@ body {
 }
 
 .composer .send:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--hover);
   color: var(--text);
 }
 
@@ -390,6 +416,9 @@ body {
    The agent's Markdown
    ================================ */
 
+/* Colors here are tints of the bubble's blue, or the translucent
+   lines and shades from the top, which work on any bubble color. */
+
 .message-agent .message-content > :first-child {
   margin-top: 0;
 }
@@ -406,7 +435,7 @@ body {
 .message-agent h2,
 .message-agent h3,
 .message-agent h4 {
-  color: var(--heading);
+  color: var(--agent-heading);
   font-weight: 600;
   line-height: 1.3;
   margin: 1.2em 0 0.5em;
@@ -418,7 +447,7 @@ body {
 .message-agent h4 { font-size: 1em; }
 
 .message-agent strong {
-  color: var(--strong);
+  color: var(--agent-strong);
 }
 
 .message-agent ul,
@@ -432,22 +461,22 @@ body {
 }
 
 .message-agent a {
-  color: var(--link);
+  color: var(--agent-link);
   text-decoration: underline;
-  text-decoration-color: rgba(91, 155, 213, 0.4);
+  text-decoration-color: var(--agent-link-underline);
 }
 
 .message-agent a:visited {
-  color: var(--link-visited);
+  color: var(--agent-link-visited);
 }
 
 .message-agent a:hover {
-  color: var(--link-hover);
-  text-decoration-color: rgba(123, 179, 232, 0.7);
+  color: var(--agent-link-hover);
+  text-decoration-color: var(--agent-link-underline-hover);
 }
 
 .message-agent code {
-  background: var(--bg-code);
+  background: var(--shade);
   padding: 0.1em 0.35em;
   border-radius: 3px;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Cascadia Mono", "Liberation Mono", monospace;
@@ -455,8 +484,8 @@ body {
 }
 
 .message-agent pre {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
+  background: var(--shade);
+  border: 1px solid var(--line-faint);
   border-radius: 6px;
   padding: 0.75rem 1rem;
   overflow-x: auto;
@@ -472,13 +501,13 @@ body {
 .message-agent blockquote {
   margin: 0.9em 0;
   padding: 0.1em 0 0.1em 1em;
-  border-left: 3px solid var(--border-strong);
+  border-left: 3px solid var(--line-strong);
   color: var(--text-seq);
 }
 
 .message-agent hr {
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
   margin: 1.2em 0;
 }
 
@@ -492,13 +521,13 @@ body {
 
 .message-agent th,
 .message-agent td {
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   padding: 0.35em 0.75em;
   text-align: left;
 }
 
 .message-agent th {
-  background: var(--bg-input);
+  background: var(--shade-soft);
 }
 
 /* ================================
