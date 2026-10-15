@@ -198,6 +198,7 @@ body {
 .conversation {
   flex: 1;
   overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
 }
 
 .messages {
@@ -291,7 +292,9 @@ body {
 /* No bar of its own: the box floats below the conversation, the same
    width as the messages above it. */
 .composer-area {
-  padding: 0 0 1.25rem;
+  padding: 1.25rem 0;
+  background: var(--bg-bar);
+  border-top: 1px solid var(--border);
 }
 
 .composer {
