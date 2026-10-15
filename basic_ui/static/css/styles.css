@@ -139,7 +139,7 @@ body {
   right: 0;
   width: 280px;
   height: 100vh;
-  padding: 4rem 1.25rem 1.25rem;
+  padding: 4rem 1.75rem 1.25rem 1.25rem;
   background: var(--bg-drawer);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
