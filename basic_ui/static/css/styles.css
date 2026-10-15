@@ -19,7 +19,7 @@
 
   /* Bubbles: the agent's blue, and a green matched to it */
   --bg-agent: #1a3a5c;
-  --bg-user: #185431;
+  --bg-user: #14482a;
   --accent: #1a3a5c;
 
   /* Text */
@@ -49,6 +49,7 @@
   /* Translucent shades, which darken whatever is behind them */
   --shade: rgba(0, 0, 0, 0.3);
   --shade-soft: rgba(0, 0, 0, 0.2);
+  --shade-strong: rgba(0, 0, 0, 0.45);
   --shadow: rgba(0, 0, 0, 0.4);
 
   /* The glow behind a button on hover */
@@ -484,7 +485,7 @@ body {
 }
 
 .message-agent pre {
-  background: var(--shade);
+  background: var(--shade-strong);
   border: 1px solid var(--line-faint);
   border-radius: 6px;
   padding: 0.75rem 1rem;
