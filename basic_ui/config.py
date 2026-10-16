@@ -16,8 +16,8 @@ DEBUG = False
 
 def apply_overrides(overrides: dict) -> None:
     """Override defaults from the agent's config.toml."""
-    import basic_ui.config as _self
+    constants = globals()
     for key, value in overrides.items():
         upper_key = key.upper()
-        if hasattr(_self, upper_key):
-            setattr(_self, upper_key, value)
+        if upper_key in constants:
+            constants[upper_key] = value
