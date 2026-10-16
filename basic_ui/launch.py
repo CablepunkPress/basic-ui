@@ -40,8 +40,8 @@ def launch(agent_path: Path) -> None:
 
         app = create_app(session)
         logger.info(
-            "%s is ready at http://localhost:%d",
-            session.name, ui_config.FLASK_PORT,
+            "Starting the web page at http://localhost:%d",
+            ui_config.FLASK_PORT,
         )
         app.run(
             host=ui_config.HOST,
