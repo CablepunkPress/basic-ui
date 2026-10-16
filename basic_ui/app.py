@@ -122,6 +122,10 @@ def create_app(session) -> Flask:
             notice=_history_notice(history),
         )
 
+    @app.get("/favicon.ico")
+    def favicon():
+        return app.send_static_file("favicon.ico")
+
     # --- A message, in three steps ---
 
     @app.post("/message")
