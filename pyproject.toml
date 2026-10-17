@@ -25,8 +25,6 @@ include = ["basic_ui*"]
 
 [tool.setuptools.package-data]
 basic_ui = [
-    "templates/*.html",
-    "templates/partials/*.html",
-    "static/css/*.css",
-    "static/js/*",
+    "templates/**/*.html",
+    "static/**/*",
 ]
