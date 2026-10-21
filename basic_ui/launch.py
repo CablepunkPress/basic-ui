@@ -1,6 +1,6 @@
 """Launch a Bountiful agent's web front end.
 
-Called by bountiful's run.py shim. Opens the agent's session, starts
+Called with an agent's folder and its data folder. Opens its session, starts
 its default model, and serves the web page until Ctrl-C or the
 terminal window closes. The session does all engine work, including
 shutdown: everything happens inside `with session`, on the main
@@ -22,10 +22,10 @@ from basic_ui.app import create_app
 logger = logging.getLogger(__name__)
 
 
-def launch(agent_path: Path) -> None:
+def launch(agent_path: Path, data_dir: Path) -> None:
     """Open the session, start the model, and serve the page."""
     try:
-        session = Session.open(agent_path, log_to_terminal=True)
+        session = Session.open(agent_path, data_dir, log_to_terminal=True)
     except SessionError as e:
         sys.exit(f"ERROR: {e}")
 
