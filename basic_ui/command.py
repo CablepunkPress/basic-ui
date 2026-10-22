@@ -1,12 +1,8 @@
-"""The bountiful command.
+"""The bountiful command: start, create, and manage agents.
 
-    bountiful ID              start an agent's web page, as in 'bountiful jeden'
-    bountiful chat ID         chat with an agent in the terminal
-    bountiful new             name a new agent and create its folder
-    bountiful import FOLDER   record an agent folder, e.g. after moving machines
-    bountiful list            the agents this machine knows
-    bountiful forget ID       remove an agent from the list; its folder is untouched
-    bountiful models          ask about optional models again
+USAGE below lists the commands. There is no default agent. Every
+agent is started the same way, by typing its id, so starting one is
+always a deliberate choice.
 
 There is no default agent. Every agent is started the same way, by
 typing its id, so starting one is always a deliberate choice.
@@ -36,7 +32,15 @@ from basic_bot.agent import (
 # agent's id, so no agent may be named after one of them.
 COMMANDS = ("chat", "new", "import", "list", "forget", "models", "help")
 
-USAGE = "Usage:\n" + __doc__.split("\n\n")[1]
+USAGE = """\
+Usage:
+    bountiful ID              start an agent's web page, as in 'bountiful jeden'
+    bountiful chat ID         chat with an agent in the terminal
+    bountiful new             name a new agent and create its folder
+    bountiful import FOLDER   record an agent folder, e.g. after moving machines
+    bountiful list            the agents this machine knows
+    bountiful forget ID       remove an agent from the list; its folder is untouched
+    bountiful models          ask about optional models again"""
 
 
 def _fail(message: str):

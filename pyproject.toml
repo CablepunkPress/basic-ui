@@ -14,6 +14,9 @@ dependencies = [
     "werkzeug",
 ]
 
+[project.scripts]
+bountiful = "basic_ui.command:main"
+
 [tool.pyright]
 pythonVersion = "3.14"
 
