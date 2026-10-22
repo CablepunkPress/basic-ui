@@ -144,7 +144,11 @@ def new() -> None:
 
 
 def import_(path: str) -> None:
-    folder = Path(path).expanduser().resolve()
+    folder = Path(path).expanduser()
+    if not (folder / "agent.json").is_file() and (Path.home() / path / "agent.json").is_file():
+        folder = Path.home() / path
+    folder = folder.resolve()
+
     agent_id = load_agent(folder)["id"]
     problem = _id_problem(agent_id)
     if problem:
