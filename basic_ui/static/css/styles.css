@@ -17,9 +17,11 @@
   --border: #2a2a2a;
   --border-strong: #444;
 
-  /* Bubbles: the agent's blue, and a green matched to it */
+  /* Bubbles: the agent's blue, and the user's gray, the message box's
+     own, so a sent message looks like the box it was typed in */
   --bg-agent: #1a3a5c;
-  --bg-user: #14482a;
+  --bg-user: var(--bg-input);
+  --border-user: var(--border);
   --accent: #1a3a5c;
 
   /* Text */
@@ -30,14 +32,17 @@
   --text-meta: rgba(255, 255, 255, 0.45);
   --text-error: #e08a8a;
 
-  /* Inside the agent's blue bubbles, lighter tints stay readable */
-  --agent-heading: #a9c7e6;
-  --agent-strong: #d4e4f4;
-  --agent-link: #9ccbff;
-  --agent-link-hover: #c4e0ff;
-  --agent-link-visited: #c3b8ec;
-  --agent-link-underline: rgba(156, 203, 255, 0.45);
-  --agent-link-underline-hover: rgba(196, 224, 255, 0.8);
+  /* Inside the agent's blue bubbles: the cornucopia's golds, blue's
+     opposite. Gold marks headings and what can be acted on (links,
+     focus); emphasis stays white. Contrast on --bg-agent, against
+     WCAG AA's 4.5:1 for text: link 7.9, hover 9.5, visited 6.3,
+     heading 7.3 (body text is 8.8). */
+  --agent-heading: #f0c95e;
+  --agent-link: #f0d27a;
+  --agent-link-hover: #ffe6a3;
+  --agent-link-visited: #e3b85a;
+  --agent-link-underline: rgba(240, 210, 122, 0.6);
+  --agent-link-underline-hover: rgba(255, 230, 163, 0.9);
 
   /* Translucent lines, faintest to strongest. They lighten whatever
      is behind them, so they work on any background. */
@@ -249,6 +254,7 @@ body {
 .message-user {
   align-self: flex-end;
   background: var(--bg-user);
+  border: 1px solid var(--border-user);
 }
 
 .message-user .message-content {
@@ -263,7 +269,7 @@ body {
 /* Not saved: the message never reached the agent */
 .message-unsent {
   background: transparent;
-  border: 1px dashed var(--bg-user);
+  border: 1px dashed var(--border-strong);
   opacity: 0.7;
 }
 
@@ -417,8 +423,8 @@ body {
    The agent's Markdown
    ================================ */
 
-/* Colors here are tints of the bubble's blue, or the translucent
-   lines and shades from the top, which work on any bubble color. */
+/* Colors here are the golds from the top, the body text's white, or
+   the translucent lines and shades, which work on any bubble color. */
 
 .message-agent .message-content > :first-child {
   margin-top: 0;
@@ -447,8 +453,9 @@ body {
 .message-agent h3 { font-size: 1.1em; }
 .message-agent h4 { font-size: 1em; }
 
-.message-agent strong {
-  color: var(--agent-strong);
+.message-agent strong,
+.message-agent em {
+  color: inherit;
 }
 
 .message-agent ul,
@@ -465,6 +472,8 @@ body {
   color: var(--agent-link);
   text-decoration: underline;
   text-decoration-color: var(--agent-link-underline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 }
 
 .message-agent a:visited {
