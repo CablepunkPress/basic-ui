@@ -13,15 +13,17 @@
   --bg: #131314;
   --bg-bar: #0a0a0a;
   --bg-input: #141414;
+  /* The message box, ready for typing. Locked while the agent works,
+     it dims to half (see .composer fieldset:disabled). */
+  --bg-compose: #1e1e20;
   --bg-drawer: rgba(13, 13, 13, 0.92);
   --border: #2a2a2a;
   --border-strong: #444;
 
   /* Bubbles: the agent's blue, and the user's gray, the message box's
-     own, so a sent message looks like the box it was typed in */
+     own, so a sent message keeps the gray it was typed on */
   --bg-agent: #1a3a5c;
-  --bg-user: var(--bg-input);
-  --border-user: var(--border);
+  --bg-user: var(--bg-compose);
   --accent: #1a3a5c;
 
   /* Text */
@@ -254,7 +256,6 @@ body {
 .message-user {
   align-self: flex-end;
   background: var(--bg-user);
-  border: 1px solid var(--border-user);
 }
 
 .message-user .message-content {
@@ -266,10 +267,11 @@ body {
   background: var(--bg-agent);
 }
 
-/* Not saved: the message never reached the agent */
+/* Not saved: the message never reached the agent. The only user
+   message with an outline. */
 .message-unsent {
   background: transparent;
-  border: 1px dashed var(--border-strong);
+  border: 1px dotted var(--border-strong);
   opacity: 0.7;
 }
 
@@ -337,22 +339,18 @@ body {
 }
 
 /* The fieldset is the visible box; the text area and the send button
-   sit inside it, the button at the bottom right. */
+   sit inside it, the button at the bottom right. Two states only:
+   ready, and locked while the agent works. */
 .composer fieldset {
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
   margin: 0;
   padding: 0.5rem 0.5rem 0.5rem 0.9rem;
-  background: var(--bg-input);
+  background: var(--bg-compose);
   border: 1px solid var(--border);
   border-radius: 12px;
   min-width: 0;
-  transition: border-color 0.2s;
-}
-
-.composer fieldset:focus-within {
-  border-color: var(--border-strong);
 }
 
 .composer textarea {
