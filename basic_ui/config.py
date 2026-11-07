@@ -9,7 +9,6 @@ Consumers must use `import basic_ui.config as ui_config` and then
 """
 
 FLASK_PORT = 11777
-HOST = "127.0.0.1"
 
 DEBUG = False
 

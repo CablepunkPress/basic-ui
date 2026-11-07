@@ -44,7 +44,7 @@ def launch(agent_path: Path, data_dir: Path) -> None:
             ui_config.FLASK_PORT,
         )
         app.run(
-            host=ui_config.HOST,
+            host="127.0.0.1",
             port=ui_config.FLASK_PORT,
             debug=ui_config.DEBUG,
             use_reloader=False,

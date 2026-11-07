@@ -19,15 +19,18 @@ decides when the next message can be sent.
 
 import logging
 
-from flask import Flask, render_template, request
+from flask import Flask, abort, render_template, request
 from werkzeug.exceptions import HTTPException
 
+import basic_ui.config as ui_config
 from basic_bot.session import SessionBusy, SessionError
 from basic_ui.render import to_html
 
 logger = logging.getLogger(__name__)
 
 HOST_NAMES = {"local": "Local", "api": "API"}
+
+LOCAL_NAMES = ("localhost", "127.0.0.1")
 
 # The page loads nothing from anywhere else, runs no inline script,
 # and can't be framed. HTMX's requests go back to this server only.
@@ -78,6 +81,19 @@ def _history_notice(history: list[dict]) -> str:
 def create_app(session) -> Flask:
     """Build the web app over an open, started session."""
     app = Flask(__name__)
+    app.config["TRUSTED_HOSTS"] = list(LOCAL_NAMES)
+
+    @app.before_request
+    def same_origin_only():
+        """Refuse a POST sent from any other page."""
+        if request.method != "POST":
+            return None
+        origin = request.headers.get("Origin")
+        allowed = {f"http://{name}:{ui_config.FLASK_PORT}" for name in LOCAL_NAMES}
+        if origin is not None and origin not in allowed:
+            logger.warning("Refused a request from %s", origin)
+            abort(403)
+        return None
 
     @app.after_request
     def security_headers(response):
