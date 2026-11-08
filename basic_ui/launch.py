@@ -22,10 +22,18 @@ from basic_ui.app import create_app
 logger = logging.getLogger(__name__)
 
 
-def launch(agent_path: Path, data_dir: Path) -> None:
+def launch(
+    agent_path: Path,
+    data_dir: Path,
+    every_agent: tuple[str, ...] = (),
+    custom_tools: Path | None = None,
+) -> None:
     """Open the session, start the model, and serve the page."""
     try:
-        session = Session.open(agent_path, data_dir, log_to_terminal=True)
+        session = Session.open(
+            agent_path, data_dir, log_to_terminal=True,
+            every_agent=every_agent, custom_tools=custom_tools,
+        )
     except SessionError as e:
         sys.exit(f"ERROR: {e}")
 
