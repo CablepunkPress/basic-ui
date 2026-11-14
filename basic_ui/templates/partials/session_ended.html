@@ -1,0 +1,5 @@
+{% from "_macros.html" import system_message, composer %}
+{{ system_message("Session ended. You can close this tab.") }}
+<hx-partial hx-target="#composer" hx-swap="outerHTML">
+  {{ composer(busy=True) }}
+</hx-partial>

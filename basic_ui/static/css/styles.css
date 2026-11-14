@@ -220,6 +220,29 @@ body {
   color: var(--text-muted);
 }
 
+.drawer-session {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.drawer-button {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.drawer-button:hover {
+  background: var(--hover);
+}
+
 /* ================================
    Conversation
    ================================ */

@@ -18,6 +18,9 @@ decides when the next message can be sent.
 """
 
 import logging
+import os
+import signal
+import threading
 
 from flask import Flask, abort, render_template, request
 from werkzeug.exceptions import HTTPException
@@ -193,6 +196,18 @@ def create_app(session) -> Flask:
                       "It will try again before the next reply.",
             )
         return render_template("partials/memory_done.html", error=None)
+
+    # --- Interrupting the agent and ending the session, from the drawer ---
+
+    @app.post("/interrupt")
+    def interrupt():
+        session.interrupt()
+        return "", 204
+
+    @app.post("/end")
+    def end():
+        threading.Timer(0.5, os.kill, (os.getpid(), signal.SIGINT)).start()
+        return render_template("partials/session_ended.html")
 
     # --- Settings, from the drawer ---
 

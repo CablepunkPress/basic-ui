@@ -26,6 +26,12 @@
 
   <aside class="drawer" id="drawer" aria-label="Settings">
     {{ drawer(controls) }}
+    <div class="drawer-session">
+      <button type="button" class="drawer-button"
+              hx-post="/interrupt" hx-swap="none">Interrupt Agent</button>
+      <button type="button" class="drawer-button"
+              hx-post="/end" hx-target="#messages" hx-swap="beforeend">End Session</button>
+    </div>
   </aside>
 
   <main class="conversation" id="conversation">

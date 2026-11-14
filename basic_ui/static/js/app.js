@@ -77,8 +77,8 @@
     }
 
     systemMessage(
-      "Your agent isn't responding. If it was stopped, start it again with " +
-      "python3 run.py, then reload this page.",
+      "Your agent isn't responding. If its session ended, start it again, " +
+      "then reload this page.",
       'error'
     );
 
