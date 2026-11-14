@@ -17,12 +17,14 @@ response says whether to re-enable it, so the server, not the browser,
 decides when the next message can be sent.
 """
 
+import json
 import logging
 import os
+import queue
 import signal
 import threading
 
-from flask import Flask, abort, render_template, request
+from flask import Flask, Response, abort, render_template, request
 from werkzeug.exceptions import HTTPException
 
 import basic_ui.config as ui_config
@@ -34,6 +36,8 @@ logger = logging.getLogger(__name__)
 HOST_NAMES = {"local": "Local", "api": "API"}
 
 LOCAL_NAMES = ("localhost", "127.0.0.1")
+
+PING_SECONDS = 15
 
 # The page loads nothing from anywhere else, runs no inline script,
 # and can't be framed. HTMX's requests go back to this server only.
@@ -196,6 +200,30 @@ def create_app(session) -> Flask:
                       "It will try again before the next reply.",
             )
         return render_template("partials/memory_done.html", error=None)
+
+    # --- What the agent is doing, while it does it ---
+
+    @app.get("/events")
+    def events():
+        listener = session.events.listen()
+
+        def stream():
+            try:
+                yield ": connected\n\n"
+                while True:
+                    try:
+                        event = listener.get(timeout=PING_SECONDS)
+                    except queue.Empty:
+                        yield ": ping\n\n"
+                        continue
+                    yield f"event: {event['kind']}\ndata: {json.dumps(event)}\n\n"
+            finally:
+                session.events.stop_listening(listener)
+
+        return Response(
+            stream(), mimetype="text/event-stream",
+            headers={"Cache-Control": "no-cache"},
+        )
 
     # --- Interrupting the agent and ending the session, from the drawer ---
 

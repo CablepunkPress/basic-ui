@@ -6,7 +6,7 @@
 <form class="message message-system message-working" id="pending-reply"
       hx-post="/reply" hx-trigger="load" hx-swap="outerHTML">
   <input type="hidden" name="message" value="{{ text }}">
-  Thinking…
+  <span class="pending-text">Thinking…</span>
 </form>
 <hx-partial hx-target="#composer" hx-swap="outerHTML">
   {{ composer(busy=True) }}

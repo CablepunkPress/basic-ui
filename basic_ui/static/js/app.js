@@ -88,6 +88,12 @@
     focusComposer();
   });
 
+  const events = new EventSource('/events');
+  events.addEventListener('narration', function (e) {
+    const line = document.querySelector('#pending-reply .pending-text');
+    if (line) line.textContent = JSON.parse(e.data).text;
+  });
+
   scrollToEnd();
   focusComposer();
 })();
