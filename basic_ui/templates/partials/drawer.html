@@ -1,12 +1,14 @@
 {% from "_macros.html" import drawer, system_message %}
-{{ drawer(controls) }}
+<template data-target="#drawer-controls" data-swap="replace">
+  {{ drawer(controls) }}
+</template>
 {% if notice %}
-<hx-partial hx-target="#messages" hx-swap="beforeend">
+<template data-target="#messages" data-swap="append">
   {{ system_message(notice) }}
-</hx-partial>
+</template>
 {% endif %}
 {% if error %}
-<hx-partial hx-target="#messages" hx-swap="beforeend">
+<template data-target="#messages" data-swap="append">
   {{ system_message(error, kind="error") }}
-</hx-partial>
+</template>
 {% endif %}

@@ -1,6 +1,8 @@
 {% from "_macros.html" import system_message, composer %}
-{{ system_message("Something went wrong. The terminal shows the details.", kind="error") }}
-<hx-partial hx-target="#pending-reply, #pending-memory" hx-swap="delete"></hx-partial>
-<hx-partial hx-target="#composer" hx-swap="outerHTML">
+<template data-target="#pending-reply, #pending-memory" data-swap="remove"></template>
+<template data-target="#messages" data-swap="append">
+  {{ system_message("Something went wrong. The terminal shows the details.", kind="error") }}
+</template>
+<template data-target="#composer" data-swap="replace">
   {{ composer() }}
-</hx-partial>
+</template>

@@ -1,11 +1,13 @@
 {% from "_macros.html" import system_message, composer %}
-{{ system_message(error, kind="error") }}
-<hx-partial hx-target="#pending-user" hx-swap="outerHTML">
+<template data-target="#pending-reply" data-swap="replace">
+  {{ system_message(error, kind="error") }}
+</template>
+<template data-target="#pending-user" data-swap="replace">
   <div class="message message-user message-unsent">
     <span class="message-seq">Not sent</span>
     <div class="message-content">{{ text }}</div>
   </div>
-</hx-partial>
-<hx-partial hx-target="#composer" hx-swap="outerHTML">
+</template>
+<template data-target="#composer" data-swap="replace">
   {{ composer(text=text) }}
-</hx-partial>
+</template>

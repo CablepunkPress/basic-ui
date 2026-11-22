@@ -1,5 +1,7 @@
 {% from "_macros.html" import system_message, composer %}
-{{ system_message("Session ended. You can close this tab.") }}
-<hx-partial hx-target="#composer" hx-swap="outerHTML">
+<template data-target="#messages" data-swap="append">
+  {{ system_message("Session ended. You can close this tab.") }}
+</template>
+<template data-target="#composer" data-swap="replace">
   {{ composer(busy=True) }}
-</hx-partial>
+</template>

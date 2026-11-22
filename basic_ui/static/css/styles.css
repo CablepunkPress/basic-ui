@@ -559,16 +559,14 @@ body {
 }
 
 /* ================================
-   HTMX's loading indicator
+   The drawer while a change is sent
    ================================ */
 
-/* Defined here so HTMX needs no inline style */
-.htmx-indicator {
+.drawer-busy {
   display: none;
 }
 
-.htmx-request .htmx-indicator,
-.htmx-request.htmx-indicator {
+.busy .drawer-busy {
   display: block;
 }
 

@@ -20,8 +20,7 @@
 
 
 {% macro composer(busy=False, text="") -%}
-<form id="composer" class="composer"
-      hx-post="/message" hx-target="#messages" hx-swap="beforeend">
+<form id="composer" class="composer" data-post="/message">
   <fieldset {% if busy %}disabled{% endif %}>
     <textarea name="message" rows="1" placeholder="Type a message...">{{ text }}</textarea>
     <button type="submit" class="send" aria-label="Send" title="Send">
@@ -37,21 +36,12 @@
 {%- endmacro %}
 
 
-{#
-  Every control in the drawer posts its change and gets the redrawn
-  drawer back. The shared settings are marked :inherited, as htmx 4
-  requires, so each control only names its own URL.
-#}
 {% macro drawer(c) -%}
-<div id="drawer-controls" class="drawer-controls"
-     hx-target:inherited="#drawer-controls"
-     hx-swap:inherited="outerHTML"
-     hx-indicator:inherited="#drawer-busy"
-     hx-disable:inherited="#drawer-controls select, #drawer-controls input">
+<div id="drawer-controls" class="drawer-controls">
 
   {% if c.hosts|length > 1 %}
   <label class="drawer-field">Host
-    <select name="host" hx-post="/settings/host">
+    <select name="host" data-post="/settings/host">
       {% for h in c.hosts %}
       <option value="{{ h }}"{% if h == c.host %} selected{% endif %}>{{ host_names.get(h, h) }}</option>
       {% endfor %}
@@ -61,7 +51,7 @@
 
   {% if c.settings_shown %}
   <label class="drawer-field">Model
-    <select name="model_id" hx-post="/settings/model">
+    <select name="model_id" data-post="/settings/model">
       {% for m in c.models %}
       <option value="{{ m.id }}"{% if m.id == c.model.id %} selected{% endif %}>{{ m.display_name }}</option>
       {% endfor %}
@@ -70,7 +60,7 @@
 
   {% if c.effort_levels %}
   <label class="drawer-field">Effort
-    <select name="level" hx-post="/settings/effort">
+    <select name="level" data-post="/settings/effort">
       {% for level in c.effort_levels %}
       <option value="{{ level }}"{% if level == c.effort %} selected{% endif %}>{{ level|capitalize }}</option>
       {% endfor %}
@@ -80,7 +70,7 @@
 
   {% if c.reasoning_shown %}
   <label class="drawer-toggle">
-    <input type="checkbox" name="on" value="true" hx-post="/settings/reasoning"
+    <input type="checkbox" name="on" value="true" data-post="/settings/reasoning"
            {%- if c.reasoning_on %} checked{% endif %}
            {%- if c.reasoning_locked %} disabled{% endif %}>
     Deep Reasoning{% if c.reasoning_locked %} (always on){% endif %}
@@ -88,6 +78,6 @@
   {% endif %}
   {% endif %}
 
-  <p id="drawer-busy" class="htmx-indicator drawer-busy">Working…</p>
+  <p class="drawer-busy">Working…</p>
 </div>
 {%- endmacro %}

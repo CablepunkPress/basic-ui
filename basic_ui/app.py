@@ -1,20 +1,7 @@
-"""Web front end for a Bountiful agent.
+"""The web page for a Bountiful agent.
 
-Flask routes over basic_bot.session, rendered as HTML with HTMX. The
-browser holds no state: the session holds the settings and the
-conversation, and every request returns the HTML to show.
-
-A message moves through three requests, so each step appears as soon
-as it's ready:
-
-    POST /message   shows the user's message and "Thinking…"
-    POST /reply     replaces "Thinking…" with the reply, then shows
-                    "Updating memory…" when the reply says one is due
-    POST /memory    runs the update and removes the notice
-
-The message box stays disabled until the last step finishes. Each
-response says whether to re-enable it, so the server, not the browser,
-decides when the next message can be sent.
+Flask routes over basic_bot.session. Each request returns HTML that
+the page puts in place, so the browser keeps nothing of its own.
 """
 
 import json
@@ -39,8 +26,8 @@ LOCAL_NAMES = ("localhost", "127.0.0.1")
 
 PING_SECONDS = 15
 
-# The page loads nothing from anywhere else, runs no inline script,
-# and can't be framed. HTMX's requests go back to this server only.
+PAGE_HEADER = "X-Basic-UI"
+
 CSP = (
     "default-src 'self'; script-src 'self'; style-src 'self'; "
     "img-src 'self'; connect-src 'self'; frame-ancestors 'none'; "
@@ -92,9 +79,12 @@ def create_app(session) -> Flask:
 
     @app.before_request
     def same_origin_only():
-        """Refuse a POST sent from any other page."""
+        """Refuse a POST that didn't come from the page itself."""
         if request.method != "POST":
             return None
+        if request.headers.get(PAGE_HEADER) != "1":
+            logger.warning("Refused a request without the page's header")
+            abort(403)
         origin = request.headers.get("Origin")
         allowed = {f"http://{name}:{ui_config.FLASK_PORT}" for name in LOCAL_NAMES}
         if origin is not None and origin not in allowed:
@@ -109,31 +99,22 @@ def create_app(session) -> Flask:
 
     @app.errorhandler(Exception)
     def unexpected_error(e):
-        """Show an unexpected failure as a system message.
+        """Show an unexpected failure in the conversation.
 
-        htmx 4 swaps error responses into the page, so a request from
-        htmx gets a fragment, redirected into the conversation: the
-        error is added, any "Thinking…" or "Updating memory…" notice is
-        removed, and the message box is enabled again. Anything else,
-        like the page itself failing to load, gets plain text. Ordinary
-        HTTP errors, like a missing file, pass through unchanged.
+        A request from the page gets the error as a message, and the
+        message box back. Anything else gets plain text.
         """
         if isinstance(e, HTTPException):
             return e
         logger.exception("Unexpected error on %s %s", request.method, request.path)
-        if "HX-Request-Type" not in request.headers:
+        if request.headers.get(PAGE_HEADER) != "1":
             return "Something went wrong. The terminal shows the details.", 500
-        return (
-            render_template("partials/unexpected_error.html"),
-            500,
-            {"HX-Retarget": "#messages", "HX-Reswap": "beforeend"},
-        )
+        return render_template("partials/unexpected_error.html"), 500
 
     @app.context_processor
     def shared():
         return {"agent_name": session.name, "host_names": HOST_NAMES}
 
-    # --- The page ---
 
     @app.get("/")
     def index():
@@ -149,7 +130,6 @@ def create_app(session) -> Flask:
     def favicon():
         return app.send_static_file("favicon.ico")
 
-    # --- A message, in three steps ---
 
     @app.post("/message")
     def message():
@@ -201,7 +181,6 @@ def create_app(session) -> Flask:
             )
         return render_template("partials/memory_done.html", error=None)
 
-    # --- What the agent is doing, while it does it ---
 
     @app.get("/events")
     def events():
@@ -225,7 +204,6 @@ def create_app(session) -> Flask:
             headers={"Cache-Control": "no-cache"},
         )
 
-    # --- Interrupting the agent and ending the session, from the drawer ---
 
     @app.post("/interrupt")
     def interrupt():
@@ -237,7 +215,6 @@ def create_app(session) -> Flask:
         threading.Timer(0.5, os.kill, (os.getpid(), signal.SIGINT)).start()
         return render_template("partials/session_ended.html")
 
-    # --- Settings, from the drawer ---
 
     def _drawer(notice: str | None = None, error: str | None = None):
         return render_template(
